@@ -1,45 +1,28 @@
 package org.example;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 public class BookingService {
-    private Map<String, Set<String>> allocatedRooms;
 
-    public BookingService() {
-        allocatedRooms = new HashMap<>();
-    }
+    public void allocateRoom(RoomInventory inventory,
+                             Reservation reservation,
+                             CancellationService cancelService) {
 
-    public void allocateRoom(RoomInventory inventory, Reservation reservation) {
+        try {
+            BookingValidator.validate(reservation, inventory);
 
-        String roomType = reservation.getRoomType();
+            String roomType = reservation.getRoomType();
+            int current = inventory.getAvailability(roomType);
 
-        int available = inventory.getAvailability(roomType);
+            String roomId = roomType.substring(0, 1) + current;
 
-        if (available <= 0) {
-            System.out.println("No rooms available for " + roomType);
-            return;
+            System.out.println("Booking confirmed for " + reservation.getGuestName()
+                    + " | Room ID: " + roomId);
+
+            cancelService.recordAllocation(reservation.getReservationId(), roomId);
+
+            inventory.updateAvailability(roomType, current - 1);
+
+        } catch (InvalidBookingException e) {
+            System.out.println("Booking failed: " + e.getMessage());
         }
-        String roomId = generateRoomId(roomType);
-
-        allocatedRooms.putIfAbsent(roomType, new HashSet<>());
-        Set<String> roomSet = allocatedRooms.get(roomType);
-
-        while (roomSet.contains(roomId)) {
-            roomId = generateRoomId(roomType);
-        }
-
-        roomSet.add(roomId);
-        inventory.updateAvailability(roomType, available - 1);
-
-        System.out.println("Booking Confirmed!");
-        System.out.println("Guest: " + reservation.getGuestName());
-        System.out.println("Room Type: " + roomType);
-        System.out.println("Room ID: " + roomId);
-        System.out.println("-----------------------------");
-    }
-    private String generateRoomId(String roomType) {
-        return roomType.substring(0, 2).toUpperCase() + (int)(Math.random() * 1000);
     }
 }

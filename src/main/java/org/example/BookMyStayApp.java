@@ -4,7 +4,7 @@ public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("===== Book My Stay App v9.0 =====");
+        System.out.println("===== Book My Stay App v10.0 (UC10 Integrated) =====");
 
         // Room objects
         Room singleRoom = new SingleRoom();
@@ -30,38 +30,37 @@ public class BookMyStayApp {
         queue.addRequest(new Reservation("R102", "Bob", "Double"));
         queue.addRequest(new Reservation("R103", "Charlie", "Suite"));
 
-        // ❌ UC9 Invalid input test
+        // UC9 invalid test
         queue.addRequest(new Reservation("R104", "David", "Luxury"));
 
         queue.displayQueue();
 
-        // UC6 - Allocation + UC9 Validation
-        BookingService service = new BookingService();
-
-        // UC8 - Booking History
+        // Services
+        BookingService bookingService = new BookingService();
+        CancellationService cancelService = new CancellationService();
         BookingHistory history = new BookingHistory();
 
         Reservation r;
         Reservation firstReservation = null;
 
+        // ================= UC6 + UC9 + UC10 Allocation =================
         while ((r = queue.processRequest()) != null) {
 
-            service.allocateRoom(inventory, r); // validation happens inside
+            bookingService.allocateRoom(inventory, r, cancelService);
 
-            // Only add valid bookings to history
-            if (inventory.getAvailability(r.getRoomType()) >= 0) {
+            // store only successful bookings
+            if (cancelService.hasReservation(r.getReservationId())) {
                 history.addReservation(r);
             }
 
-            if (firstReservation == null) {
+            if (firstReservation == null && cancelService.hasReservation(r.getReservationId())) {
                 firstReservation = r;
             }
         }
 
         inventory.displayInventory();
 
-        // ================= UC7 START =================
-
+        // ================= UC7 Add-ons =================
         AddOnServiceManager addOnManager = new AddOnServiceManager();
 
         if (firstReservation != null) {
@@ -74,16 +73,21 @@ public class BookMyStayApp {
             addOnManager.displayServices(resId);
         }
 
-        // ================= UC7 END =================
+        // ================= UC10 Cancellation =================
+        System.out.println("\n===== UC10: Cancellation Flow =====");
 
+        if (firstReservation != null) {
+            cancelService.cancelBooking(firstReservation, inventory);
+        }
 
-        // ================= UC8 START =================
+        cancelService.displayRollbackStack();
 
+        inventory.displayInventory();
+
+        // ================= UC8 History + Report =================
         history.displayHistory();
 
         BookingReportService reportService = new BookingReportService();
         reportService.generateReport(history);
-
-        // ================= UC8 END =================
     }
 }
