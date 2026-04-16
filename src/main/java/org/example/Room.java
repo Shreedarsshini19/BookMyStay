@@ -10,7 +10,7 @@ public abstract class Room {
         this.squareFeet = squareFeet;
         this.pricePerNight = pricePerNight;
     }
-    public void displayRoomDetails() {
+    public void displayDetails() {
         System.out.println("Beds: " + numberOfBeds);
         System.out.println("Size: " + squareFeet + " sq.ft");
         System.out.println("Price per night: ₹" + pricePerNight);
