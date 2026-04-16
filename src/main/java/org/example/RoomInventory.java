@@ -1,28 +1,52 @@
 package org.example;
+
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-public class RoomInventory {
-    private HashMap<String, Integer> inventory;
-    public RoomInventory() {
-        inventory = new HashMap<>();
 
-        inventory.put("Single", 5);
-        inventory.put("Double", 3);
-        inventory.put("Suite", 2);
+public class RoomInventory implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private Map<String, Integer> roomAvailability;
+
+    public RoomInventory() {
+        roomAvailability = new HashMap<>();
+
+        // default rooms
+        roomAvailability.put("Single", 5);
+        roomAvailability.put("Double", 5);
+        roomAvailability.put("Suite", 5);
     }
+
+    // ================= EXISTING METHODS =================
+
+    public void addRoomType(String roomType, int count) {
+        roomAvailability.put(roomType, count);
+    }
+
     public int getAvailability(String roomType) {
-        return inventory.getOrDefault(roomType, 0);
+        return roomAvailability.getOrDefault(roomType, 0);
     }
-    public void updateAvailability(String roomType, int count) {
-        inventory.put(roomType, count);
+
+    public void updateAvailability(String roomType, int newCount) {
+        roomAvailability.put(roomType, newCount);
     }
+
+    // ================= FIX FOR YOUR ERROR =================
+    // This is what RoomSearchService is calling
+
+    public Map<String, Integer> getRoomAvailability() {
+        return roomAvailability;
+    }
+
+    // ================= DISPLAY =================
+
     public void displayInventory() {
         System.out.println("\n===== ROOM INVENTORY =====");
-        for (String type : inventory.keySet()) {
-            System.out.println(type + " Rooms Available: " + inventory.get(type));
+
+        for (Map.Entry<String, Integer> entry : roomAvailability.entrySet()) {
+            System.out.println(entry.getKey() + " Rooms Available: " + entry.getValue());
         }
-    }
-    public Map<String,Integer> getRoomAvailability(){
-        return inventory;
     }
 }
