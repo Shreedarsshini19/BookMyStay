@@ -21,4 +21,10 @@ public class BookingRequestQueue {
             r.displayReservation();
         }
     }
+    public Reservation processRequest() {
+        if (bookingQueue.isEmpty()) {
+            return null;
+        }
+        return bookingQueue.poll();
+    }
 }
