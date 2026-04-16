@@ -4,4 +4,3 @@ package org.example;
             super(1, 250, 1500.0);
         }
     }
-
