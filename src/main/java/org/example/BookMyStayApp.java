@@ -4,7 +4,7 @@ public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("===== Book My Stay App v8.0 =====");
+        System.out.println("===== Book My Stay App v9.0 =====");
 
         // Room objects
         Room singleRoom = new SingleRoom();
@@ -30,9 +30,12 @@ public class BookMyStayApp {
         queue.addRequest(new Reservation("R102", "Bob", "Double"));
         queue.addRequest(new Reservation("R103", "Charlie", "Suite"));
 
+        // ❌ UC9 Invalid input test
+        queue.addRequest(new Reservation("R104", "David", "Luxury"));
+
         queue.displayQueue();
 
-        // UC6 - Allocation
+        // UC6 - Allocation + UC9 Validation
         BookingService service = new BookingService();
 
         // UC8 - Booking History
@@ -42,10 +45,13 @@ public class BookMyStayApp {
         Reservation firstReservation = null;
 
         while ((r = queue.processRequest()) != null) {
-            service.allocateRoom(inventory, r);
 
-            // UC8 - store confirmed booking
-            history.addReservation(r);
+            service.allocateRoom(inventory, r); // validation happens inside
+
+            // Only add valid bookings to history
+            if (inventory.getAvailability(r.getRoomType()) >= 0) {
+                history.addReservation(r);
+            }
 
             if (firstReservation == null) {
                 firstReservation = r;
