@@ -4,7 +4,7 @@ public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("===== Book My Stay App v7.0 =====");
+        System.out.println("===== Book My Stay App v8.0 =====");
 
         // Room objects
         Room singleRoom = new SingleRoom();
@@ -35,11 +35,17 @@ public class BookMyStayApp {
         // UC6 - Allocation
         BookingService service = new BookingService();
 
+        // UC8 - Booking History
+        BookingHistory history = new BookingHistory();
+
         Reservation r;
         Reservation firstReservation = null;
 
         while ((r = queue.processRequest()) != null) {
             service.allocateRoom(inventory, r);
+
+            // UC8 - store confirmed booking
+            history.addReservation(r);
 
             if (firstReservation == null) {
                 firstReservation = r;
@@ -63,5 +69,15 @@ public class BookMyStayApp {
         }
 
         // ================= UC7 END =================
+
+
+        // ================= UC8 START =================
+
+        history.displayHistory();
+
+        BookingReportService reportService = new BookingReportService();
+        reportService.generateReport(history);
+
+        // ================= UC8 END =================
     }
 }
