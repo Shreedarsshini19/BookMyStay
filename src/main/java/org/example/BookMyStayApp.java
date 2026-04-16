@@ -27,5 +27,12 @@ public class BookMyStayApp {
         queue.addRequest(new Reservation("Charlie", "Suite"));
 
         queue.displayQueue();
+
+        BookingService service = new BookingService();
+        Reservation r;
+        while((r=queue.processRequest())!=null) {
+            service.allocateRoom(inventory, r);
+        }
+    inventory.displayInventory();
     }
 }
