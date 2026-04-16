@@ -1,5 +1,6 @@
 package org.example;
 import java.util.HashMap;
+import java.util.Map;
 public class RoomInventory {
     private HashMap<String, Integer> inventory;
     public RoomInventory() {
@@ -20,5 +21,8 @@ public class RoomInventory {
         for (String type : inventory.keySet()) {
             System.out.println(type + " Rooms Available: " + inventory.get(type));
         }
+    }
+    public Map<String,Integer> getRoomAvailability(){
+        return inventory;
     }
 }
