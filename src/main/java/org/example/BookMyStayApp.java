@@ -2,19 +2,21 @@ package org.example;
 
 public class BookMyStayApp {
     public static void main(String[] args) {
+System.out.println("=====Book My Stay App v4.0=====");
+
         Room singleRoom = new SingleRoom();
         Room doubleRoom = new DoubleRoom();
         Room suiteRoom = new SuiteRoom();
+
         RoomInventory inventory = new RoomInventory();
-        singleRoom.displayDetails();
-        System.out.println("Available: " + inventory.getAvailability("Single"));
 
-        doubleRoom.displayDetails();
-        System.out.println("Available: " + inventory.getAvailability("Double"));
+        RoomSearchService searchService = new RoomSearchService();
 
-        suiteRoom.displayDetails();
-        System.out.println("Available: " + inventory.getAvailability("Suite"));
-
-        inventory.displayInventory();
+        searchService.searchAvailableRooms(
+                inventory,
+                singleRoom,
+                doubleRoom,
+                suiteRoom
+        );
     }
 }
