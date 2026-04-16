@@ -2,29 +2,29 @@ package org.example;
 
 import java.util.LinkedList;
 import java.util.Queue;
+
 public class BookingRequestQueue {
 
-    private Queue<Reservation> bookingQueue;
-
-    public BookingRequestQueue() {
-        bookingQueue = new LinkedList<>();
-    }
+    private Queue<Reservation> queue = new LinkedList<>();
 
     public void addRequest(Reservation reservation) {
-        bookingQueue.add(reservation);
-        System.out.println("Added booking request for " + reservation.getGuestName());
+        queue.add(reservation);
     }
-    public void displayQueue() {
-        System.out.println("\n===== BOOKING REQUEST QUEUE =====");
+    public synchronized Reservation processRequest() {
 
-        for (Reservation r : bookingQueue) {
-            r.displayReservation();
-        }
-    }
-    public Reservation processRequest() {
-        if (bookingQueue.isEmpty()) {
+        if (queue.isEmpty()) {
             return null;
         }
-        return bookingQueue.poll();
+
+        return queue.poll();
+    }
+
+    public void displayQueue() {
+        System.out.println("\nCurrent Booking Queue:");
+        for (Reservation r : queue) {
+            System.out.println(r.getReservationId() + " | " +
+                    r.getGuestName() + " | " +
+                    r.getRoomType());
+        }
     }
 }

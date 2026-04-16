@@ -4,90 +4,73 @@ public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("===== Book My Stay App v10.0 (UC10 Integrated) =====");
+        System.out.println("===== Book My Stay App v11.0 (UC11 Concurrent System) =====");
 
-        // Room objects
+        // ================= ROOM TYPES =================
         Room singleRoom = new SingleRoom();
         Room doubleRoom = new DoubleRoom();
         Room suiteRoom = new SuiteRoom();
 
-        // Inventory
+        // ================= INVENTORY =================
         RoomInventory inventory = new RoomInventory();
 
-        // UC4 - Search
+        // ================= SEARCH (UC4) =================
         RoomSearchService searchService = new RoomSearchService();
-        searchService.searchAvailableRooms(
-                inventory,
-                singleRoom,
-                doubleRoom,
-                suiteRoom
-        );
+        searchService.searchAvailableRooms(inventory, singleRoom, doubleRoom, suiteRoom);
 
-        // UC5 - Queue
+        // ================= SHARED QUEUE =================
         BookingRequestQueue queue = new BookingRequestQueue();
 
-        queue.addRequest(new Reservation("R101", "Alice", "Single"));
-        queue.addRequest(new Reservation("R102", "Bob", "Double"));
-        queue.addRequest(new Reservation("R103", "Charlie", "Suite"));
-
-        // UC9 invalid test
-        queue.addRequest(new Reservation("R104", "David", "Luxury"));
+        queue.addRequest(new Reservation("R201", "Alice", "Single"));
+        queue.addRequest(new Reservation("R202", "Bob", "Double"));
+        queue.addRequest(new Reservation("R203", "Charlie", "Suite"));
+        queue.addRequest(new Reservation("R204", "David", "Single"));
+        queue.addRequest(new Reservation("R205", "Eve", "Double"));
+        queue.addRequest(new Reservation("R206", "Frank", "Suite"));
 
         queue.displayQueue();
 
-        // Services
+        // ================= SHARED SERVICES =================
         BookingService bookingService = new BookingService();
         CancellationService cancelService = new CancellationService();
         BookingHistory history = new BookingHistory();
 
-        Reservation r;
-        Reservation firstReservation = null;
+        // ================= UC11 THREAD PROCESSING =================
 
-        // ================= UC6 + UC9 + UC10 Allocation =================
-        while ((r = queue.processRequest()) != null) {
+        System.out.println("\n===== UC11: Concurrent Booking Execution =====");
 
-            bookingService.allocateRoom(inventory, r, cancelService);
+        Runnable processor = new ConcurrentBookingProcessor(
+                queue,
+                bookingService,
+                inventory,
+                cancelService,
+                history
+        );
 
-            // store only successful bookings
-            if (cancelService.hasReservation(r.getReservationId())) {
-                history.addReservation(r);
-            }
+        Thread t1 = new Thread(processor, "Guest-Thread-1");
+        Thread t2 = new Thread(processor, "Guest-Thread-2");
+        Thread t3 = new Thread(processor, "Guest-Thread-3");
 
-            if (firstReservation == null && cancelService.hasReservation(r.getReservationId())) {
-                firstReservation = r;
-            }
+        t1.start();
+        t2.start();
+        t3.start();
+
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
+        // ================= FINAL SYSTEM STATE =================
+        System.out.println("\n===== FINAL INVENTORY =====");
         inventory.displayInventory();
 
-        // ================= UC7 Add-ons =================
-        AddOnServiceManager addOnManager = new AddOnServiceManager();
-
-        if (firstReservation != null) {
-            String resId = firstReservation.getReservationId();
-
-            addOnManager.addService(resId, new Service("Breakfast", 500));
-            addOnManager.addService(resId, new Service("WiFi", 200));
-            addOnManager.addService(resId, new Service("Spa", 1000));
-
-            addOnManager.displayServices(resId);
-        }
-
-        // ================= UC10 Cancellation =================
-        System.out.println("\n===== UC10: Cancellation Flow =====");
-
-        if (firstReservation != null) {
-            cancelService.cancelBooking(firstReservation, inventory);
-        }
-
-        cancelService.displayRollbackStack();
-
-        inventory.displayInventory();
-
-        // ================= UC8 History + Report =================
+        System.out.println("\n===== BOOKING HISTORY =====");
         history.displayHistory();
 
-        BookingReportService reportService = new BookingReportService();
-        reportService.generateReport(history);
+        System.out.println("\n===== ROLLBACK STACK (UC10 + UC11 SAFE LOG) =====");
+        cancelService.displayRollbackStack();
     }
 }
