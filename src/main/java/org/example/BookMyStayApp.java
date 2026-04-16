@@ -1,8 +1,10 @@
 package org.example;
 
 public class BookMyStayApp {
+
     public static void main(String[] args) {
-System.out.println("=====Book My Stay App v4.0=====");
+
+        System.out.println("===== Book My Stay App v5.0 =====");
 
         Room singleRoom = new SingleRoom();
         Room doubleRoom = new DoubleRoom();
@@ -11,12 +13,19 @@ System.out.println("=====Book My Stay App v4.0=====");
         RoomInventory inventory = new RoomInventory();
 
         RoomSearchService searchService = new RoomSearchService();
-
         searchService.searchAvailableRooms(
                 inventory,
                 singleRoom,
                 doubleRoom,
                 suiteRoom
         );
+
+        BookingRequestQueue queue = new BookingRequestQueue();
+
+        queue.addRequest(new Reservation("Alice", "Single"));
+        queue.addRequest(new Reservation("Bob", "Double"));
+        queue.addRequest(new Reservation("Charlie", "Suite"));
+
+        queue.displayQueue();
     }
 }
